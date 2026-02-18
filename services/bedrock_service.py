@@ -34,7 +34,10 @@ class BedrockService:
             return self._mock_response(prompt)
     
     def _mock_response(self, prompt):
-        if "priorities" in prompt.lower() or "analyze" in prompt.lower():
+        prompt_lower = prompt.lower()
+        
+        # Customer analysis
+        if "priorities" in prompt_lower or "analyze" in prompt_lower:
             return """Top 3 Priorities:
 1. Cost optimization - spending increased 30% this quarter
 2. Microservices migration - moving from monolith to containers
@@ -55,13 +58,80 @@ MBR Focus Areas:
 - Container orchestration guidance (ECS vs EKS)
 - RDS performance tuning and optimization"""
         
-        elif "talking points" in prompt.lower():
-            return """• Highlight customer's 30% cost increase and show specific optimization opportunities
-• Reference their open RDS performance case and discuss resolution timeline
-• Connect to their microservices migration plans and container strategy
-• Emphasize proactive monitoring to prevent future issues"""
+        # Slide-specific talking points
+        elif "talking points" in prompt_lower:
+            # Extract slide title/content from prompt
+            if "total spend" in prompt_lower or "all accounts" in prompt_lower or "financial analysis" in prompt_lower:
+                if "total spend" in prompt_lower:
+                    return """• Customer's total spend increased 30% QoQ - discuss drivers and whether this aligns with business growth
+• Highlight top 3 spending accounts and their purposes
+• Reference upcoming Reserved Instance expirations that could impact next quarter's costs
+• Ask: "Are there any new projects or workloads planned that we should factor into cost projections?" """
+                elif "ec2" in prompt_lower:
+                    return """• EC2 represents largest cost component - review instance types for right-sizing opportunities
+• Note the mix of On-Demand vs Reserved/Savings Plans coverage
+• Customer mentioned container migration - discuss impact on EC2 footprint
+• Recommend: Review instance families for newer generation upgrades (cost + performance)"""
+                elif "rds" in prompt_lower:
+                    return """• Reference open support case #12345 regarding RDS performance issues
+• Discuss current instance types and whether Aurora migration makes sense
+• Review backup retention and storage costs - optimization opportunities
+• Ask: "What's your RTO/RPO requirements? Are you considering Multi-AZ or read replicas?""""
+                elif "s3" in prompt_lower:
+                    return """• S3 costs growing steadily - review storage classes and lifecycle policies
+• Identify data that could move to Glacier or Intelligent-Tiering
+• Discuss versioning and replication costs if enabled
+• Recommend: S3 Storage Lens for detailed usage analytics"""
+                else:
+                    return """• Review this cost category in context of customer's business priorities
+• Identify any unexpected spikes or trends worth discussing
+• Connect to customer's stated goals around cost optimization
+• Ask if this aligns with their expectations and business growth"""
+            
+            elif "operational" in prompt_lower:
+                return """• Operational metrics show usage patterns - correlate with cost trends
+• Identify opportunities for automation and efficiency improvements
+• Discuss monitoring and alerting setup for proactive issue detection
+• Ask: "Are you getting the visibility you need into resource utilization?""""
+            
+            elif "reservation" in prompt_lower or "savings plan" in prompt_lower:
+                return """• Current RI/SP coverage is X% - opportunity to increase and save Y%
+• Review upcoming expirations and renewal strategy
+• Discuss customer's commitment comfort level given migration plans
+• Recommend: Start with Compute Savings Plans for flexibility during container transition"""
+            
+            elif "trusted advisor" in prompt_lower:
+                return """• TA findings highlight X critical items requiring attention
+• Prioritize security and cost optimization recommendations
+• Discuss remediation timeline and resource requirements
+• Offer TAM support for architectural guidance on complex items"""
+            
+            elif "support" in prompt_lower:
+                return """• Review open case #12345 (RDS performance) - provide update and next steps
+• Case volume trending up/down - discuss if customer needs additional training
+• Highlight proactive engagement opportunities to prevent future issues
+• Ask: "Are you satisfied with response times and resolution quality?""""
+            
+            elif "security" in prompt_lower or "compliance" in prompt_lower:
+                return """• Review security posture against customer's compliance requirements
+• Discuss IAM best practices and any findings from Security Hub
+• Highlight encryption status for data at rest and in transit
+• Ask: "Any upcoming audits or compliance certifications we should prepare for?""""
+            
+            elif "innovation" in prompt_lower or "roadmap" in prompt_lower:
+                return """• Connect AWS innovation to customer's stated priorities (containers, cost optimization)
+• Discuss relevant new services: ECS/EKS for containers, Compute Optimizer for rightsizing
+• Propose architecture review or Well-Architected Framework assessment
+• Ask: "What business initiatives are driving your technical roadmap for next quarter?""""
+            
+            else:
+                return """• Connect this slide's content to customer's top priorities: cost optimization and container migration
+• Reference specific data points from their AWS environment
+• Provide actionable recommendations based on their current state
+• Ask open-ended questions to uncover additional needs or concerns"""
         
-        elif "questions" in prompt.lower():
+        # Strategic questions
+        elif "questions" in prompt_lower:
             return """1. What are your target timelines for the microservices migration, and what workloads are you prioritizing first?
 2. Beyond cost, what other factors are driving your container orchestration decision between ECS and EKS?
 3. How are you currently monitoring application performance, and what gaps exist in your observability strategy?
@@ -70,17 +140,30 @@ MBR Focus Areas:
 6. How can we better support your team's AWS skills development and architectural guidance needs?
 7. What's your appetite for adopting newer AWS services like serverless or managed AI/ML offerings?"""
         
-        elif "relevance" in prompt.lower() or "score" in prompt.lower():
-            if "cost" in prompt.lower():
-                return "9|Highly relevant - customer's top concern is rising costs"
-            elif "security" in prompt.lower():
-                return "6|Somewhat relevant - not a current pain point but important"
-            elif "innovation" in prompt.lower():
-                return "7|Relevant - ties to their microservices migration plans"
-            elif "well-architected" in prompt.lower():
-                return "8|Very relevant - helps address performance and cost issues"
+        # Slide relevance scoring
+        elif "relevance" in prompt_lower or "score" in prompt_lower:
+            if "cost" in prompt_lower or "financial" in prompt_lower or "spend" in prompt_lower:
+                return "9|Highly relevant - customer's top concern is rising costs and optimization"
+            elif "ec2" in prompt_lower:
+                return "8|Very relevant - largest cost component and related to container migration"
+            elif "rds" in prompt_lower:
+                return "9|Highly relevant - active performance issue with open support case"
+            elif "s3" in prompt_lower:
+                return "7|Relevant - growing costs with optimization opportunities"
+            elif "reservation" in prompt_lower or "savings" in prompt_lower:
+                return "8|Very relevant - key cost optimization opportunity"
+            elif "operational" in prompt_lower:
+                return "7|Relevant - provides context for cost and performance discussions"
+            elif "support" in prompt_lower:
+                return "8|Very relevant - active case requiring follow-up"
+            elif "security" in prompt_lower:
+                return "6|Somewhat relevant - important but not current pain point"
+            elif "innovation" in prompt_lower:
+                return "7|Relevant - ties to container migration plans"
+            elif "trusted advisor" in prompt_lower:
+                return "7|Relevant - actionable recommendations for optimization"
             else:
-                return "7|Relevant to customer's current needs"
+                return "6|Moderately relevant - provides useful context"
         
         return "Mock response generated (Bedrock not available)"
     
@@ -132,5 +215,5 @@ Format: SCORE|EXPLANATION"""
             try:
                 return int(parts[0].strip()), parts[1].strip()
             except:
-                return 5, "Unable to assess"
-        return 5, "Unable to assess"
+                return 6, "Moderately relevant"
+        return 6, "Moderately relevant"
