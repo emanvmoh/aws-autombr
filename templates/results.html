@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Results - MBR Automation</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1000px; margin: 50px auto; padding: 20px; }
+        h1 { color: #232f3e; }
+        .success { background-color: #d4edda; padding: 20px; border-radius: 8px; border-left: 4px solid #28a745; margin: 20px 0; }
+        .content-box { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        pre { white-space: pre-wrap; word-wrap: break-word; }
+        button, .btn { background-color: #ff9900; color: white; padding: 12px 30px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; text-decoration: none; display: inline-block; margin: 5px; }
+        button:hover, .btn:hover { background-color: #ec7211; }
+        .secondary { background-color: #6c757d; }
+        .secondary:hover { background-color: #5a6268; }
+    </style>
+</head>
+<body>
+    <h1>✓ Processing Complete</h1>
+    
+    <div class="success">
+        <h3>Your MBR presentation for {{ customer_name }} is ready!</h3>
+        <p>The presentation has been tailored with customer-specific context, talking points, and strategic questions.</p>
+    </div>
+    
+    <h2>Downloads</h2>
+    <a href="/download/{{ presentation_file }}" class="btn">📥 Download Presentation</a>
+    
+    <h2>Change Summary</h2>
+    <div class="content-box">
+        <pre>{{ summary }}</pre>
+    </div>
+    
+    <h2>Strategic Questions</h2>
+    <div class="content-box">
+        <pre>{{ questions }}</pre>
+    </div>
+    
+    <a href="/reset"><button class="secondary">← Start New MBR</button></a>
+</body>
+</html>

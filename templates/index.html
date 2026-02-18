@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MBR Automation Agent</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+        h1 { color: #232f3e; }
+        .form-group { margin: 20px 0; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="text"], input[type="file"], select { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        button { background-color: #ff9900; color: white; padding: 12px 30px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { background-color: #ec7211; }
+        .info { background-color: #f0f8ff; padding: 15px; border-left: 4px solid #0073bb; margin: 20px 0; }
+        .required { color: red; }
+    </style>
+</head>
+<body>
+    <h1>🎯 MBR Automation Agent</h1>
+    <p>Automate your Monthly Business Review preparation with AI-powered context analysis</p>
+    
+    <div class="info">
+        <strong>How it works:</strong>
+        <ol>
+            <li>Upload your MBR presentation and optional context files</li>
+            <li>Agent gathers data from AWS Cost Explorer, Health API, Support, and Outlook</li>
+            <li>Claude analyzes and tailors the presentation to your customer</li>
+            <li>Review and download the customized presentation with talking points</li>
+        </ol>
+    </div>
+    
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <div style="background-color: #ffebee; padding: 10px; margin: 10px 0; border-radius: 4px;">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <form action="/upload" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <label>Customer Name <span class="required">*</span></label>
+            <input type="text" name="customer_name" required placeholder="e.g., Acme Corporation">
+        </div>
+        
+        <div class="form-group">
+            <label>Audience Type <span class="required">*</span></label>
+            <select name="audience_type" required>
+                <option value="technical">Technical</option>
+                <option value="business">Business</option>
+                <option value="mixed">Mixed</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label>MBR Presentation <span class="required">*</span></label>
+            <input type="file" name="presentation" accept=".pptx" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Previous MBR Notes (Optional)</label>
+            <input type="file" name="previous_mbr" accept=".txt,.pdf,.docx">
+        </div>
+        
+        <div class="form-group">
+            <label>SA/CSM Notes (Optional)</label>
+            <input type="file" name="sa_notes" accept=".txt,.pdf,.docx">
+        </div>
+        
+        <button type="submit">Start Processing →</button>
+    </form>
+</body>
+</html>

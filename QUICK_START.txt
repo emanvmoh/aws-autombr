@@ -1,0 +1,149 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                        MBR AUTOMATION AGENT                                  ║
+║                     AI-Powered MBR Preparation Tool                          ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+📦 WHAT YOU HAVE
+
+A complete web application that automates MBR presentation preparation by:
+  ✓ Gathering customer context from AWS APIs and Outlook
+  ✓ Using Claude (Bedrock) to analyze priorities and pain points
+  ✓ Tailoring presentations with contextual talking points
+  ✓ Generating strategic questions for the MBR
+  ✓ Creating detailed change summaries
+
+🚀 QUICK START (3 Steps)
+
+1. Setup
+   cd /workspace/mbr-automation-agent
+   ./start.sh
+
+2. Configure (edit .env file)
+   - Set AWS_REGION (default: us-east-1)
+   - Ensure AWS credentials are configured
+   - Optional: Add Outlook OAuth credentials
+
+3. Run
+   source venv/bin/activate
+   python app.py
+   
+   Open: http://localhost:5000
+
+📁 PROJECT STRUCTURE
+
+mbr-automation-agent/
+├── app.py                      # Flask web application
+├── config.py                   # Configuration management
+├── services/
+│   ├── bedrock_service.py      # Claude AI integration
+│   ├── aws_data_service.py     # Cost Explorer, Health, Support
+│   ├── outlook_service.py      # Email integration
+│   ├── pptx_service.py         # PowerPoint manipulation
+│   ├── context_gatherer.py     # Data orchestration
+│   └── presentation_agent.py   # Main processing logic
+├── templates/                  # HTML interface
+├── uploads/                    # Temporary file storage
+└── outputs/                    # Generated presentations
+
+📋 WORKFLOW
+
+1. TAM uploads MBR presentation + optional context files
+2. Agent gathers data from AWS APIs and Outlook
+3. Claude analyzes customer priorities and pain points
+4. Agent assesses slide relevance (scores 1-10)
+5. Removes low-value slides, keeps relevant content
+6. Generates talking points for each slide
+7. Creates strategic questions document
+8. TAM reviews and downloads tailored presentation
+
+🔧 REQUIREMENTS
+
+✓ Python 3.8+
+✓ AWS credentials with Bedrock access
+✓ Amazon Bedrock (Claude 3.5 Sonnet) enabled
+✓ Optional: AWS Business/Enterprise support (for Cost Explorer, Support API)
+✓ Optional: Outlook OAuth (falls back to mock data)
+
+⚡ TESTING WITHOUT FULL ACCESS
+
+The app gracefully handles missing permissions:
+  • No Cost Explorer? → Uses mock cost data
+  • No Health API? → Uses mock health events
+  • No Support API? → Uses mock support cases
+  • No Outlook OAuth? → Uses mock email data
+
+This lets you test the full workflow immediately!
+
+📝 CREATE SAMPLE PRESENTATION
+
+python create_sample_presentation.py
+
+This creates a sample MBR deck you can use for testing.
+
+📚 DOCUMENTATION
+
+README.md           - Full documentation and architecture
+SETUP_GUIDE.md      - Detailed installation instructions
+PROJECT_OVERVIEW.md - Technical deep dive and data flow
+QUICK_START.txt     - This file
+
+🔐 SECURITY NOTES
+
+Current: Local development, temporary file storage
+Production needs:
+  • Authentication (AWS Cognito, OAuth)
+  • Data retention policies
+  • Audit logging
+  • Secrets Manager for credentials
+  • VPC and security groups
+
+🚢 DEPLOYMENT OPTIONS
+
+Local:     python app.py (current)
+ECS:       Containerize and deploy to Fargate
+Lambda:    Serverless with API Gateway
+EC2:       Simple production deployment
+
+💰 ESTIMATED COSTS
+
+Bedrock (Claude):  ~$50-100/month
+ECS Fargate:       ~$30-50/month (if deployed)
+S3 Storage:        ~$5-10/month
+Total:             ~$85-160/month
+
+🎯 NEXT STEPS
+
+1. Run ./start.sh to set up environment
+2. Configure .env with your AWS settings
+3. Ensure Bedrock access is enabled
+4. Create sample presentation for testing
+5. Start the app and test the workflow
+6. Upload a real MBR presentation
+7. Review generated outputs
+
+🐛 TROUBLESHOOTING
+
+"Bedrock Access Denied"
+  → Check: aws bedrock list-foundation-models --region us-east-1
+  → Enable model access in AWS Console → Bedrock → Model access
+
+"Module not found"
+  → Run: source venv/bin/activate && pip install -r requirements.txt
+
+"Port 5000 in use"
+  → Edit app.py, change port in last line to 5001
+
+📞 SUPPORT
+
+For issues:
+  1. Check README.md troubleshooting section
+  2. Review SETUP_GUIDE.md
+  3. Contact your AWS TAM
+
+═══════════════════════════════════════════════════════════════════════════════
+
+Built with: Flask, Amazon Bedrock (Claude), python-pptx, boto3, MSAL
+Version: 1.0.0
+Status: Ready for testing and development
+
+═══════════════════════════════════════════════════════════════════════════════

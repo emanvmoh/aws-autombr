@@ -1,0 +1,30 @@
+# Environment
+.env
+*.pyc
+__pycache__/
+
+# Uploads and outputs
+uploads/*
+outputs/*
+!uploads/.gitkeep
+!outputs/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python virtual environment
+venv/
+env/
+
+# Logs
+*.log
+server.log
+
+# Sample files (optional - remove if you want to commit them)
+sample_mbr_presentation.pptx
