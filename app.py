@@ -3,12 +3,20 @@ from werkzeug.utils import secure_filename
 import os
 from config import Config
 from services.presentation_agent import PresentationAgent
+from services.file_cleanup import FileCleanup
 
 app = Flask(__name__)
 app.config.from_object(Config)
 
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 os.makedirs(app.config['OUTPUT_FOLDER'], exist_ok=True)
+
+# Clean old files on startup
+FileCleanup.cleanup_old_files(
+    app.config['UPLOAD_FOLDER'], 
+    app.config['OUTPUT_FOLDER'], 
+    max_age_hours=24
+)
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in Config.ALLOWED_EXTENSIONS
@@ -30,9 +38,23 @@ def upload_files():
     
     customer_name = request.form.get('customer_name', '').strip()
     audience_type = request.form.get('audience_type', 'technical')
+    customer_account_id = request.form.get('customer_account_id', '').strip()
     
     if not customer_name:
         flash('Customer name is required')
+        return redirect(url_for('index'))
+    
+    if not customer_account_id:
+        flash('Customer AWS Account ID is required')
+        return redirect(url_for('index'))
+    
+    # Validate customer account ID
+    if not customer_account_id.isdigit():
+        flash('Customer AWS Account ID must be 12 digits')
+        return redirect(url_for('index'))
+    
+    if len(customer_account_id) != 12:
+        flash('Customer AWS Account ID must be exactly 12 digits')
         return redirect(url_for('index'))
     
     # Save uploaded files
@@ -60,6 +82,7 @@ def upload_files():
     
     # Store in session for processing
     session['pptx_path'] = pptx_path
+    session['customer_account_id'] = customer_account_id
     session['customer_name'] = customer_name
     session['audience_type'] = audience_type
     session['uploaded_files'] = uploaded_files
@@ -73,7 +96,8 @@ def review():
     
     return render_template('review.html', 
                          customer_name=session['customer_name'],
-                         audience_type=session['audience_type'])
+                         audience_type=session['audience_type'],
+                         customer_account_id=session.get('customer_account_id'))
 
 @app.route('/process', methods=['POST'])
 def process():
@@ -82,7 +106,8 @@ def process():
         return redirect(url_for('index'))
     
     try:
-        agent = PresentationAgent()
+        customer_account_id = session.get('customer_account_id')
+        agent = PresentationAgent(customer_account_id=customer_account_id)
         results = agent.process_presentation(
             pptx_path=session['pptx_path'],
             customer_name=session['customer_name'],
@@ -117,11 +142,25 @@ def results():
                          customer_name=session['customer_name'],
                          summary=summary_content,
                          questions=questions_content,
-                         presentation_file=os.path.basename(results['presentation']))
+                         presentation_file=os.path.basename(results['presentation']),
+                         data_sources=results.get('data_sources'))
 
 @app.route('/download/<filename>')
 def download(filename):
     return send_file(os.path.join(app.config['OUTPUT_FOLDER'], filename), as_attachment=True)
+
+@app.route('/cleanup')
+def cleanup():
+    """Clean up files for current session."""
+    if 'session_id' in session:
+        FileCleanup.cleanup_session_files(
+            session['session_id'],
+            app.config['UPLOAD_FOLDER'],
+            app.config['OUTPUT_FOLDER']
+        )
+        flash('Session files cleaned up successfully')
+    session.clear()
+    return redirect(url_for('index'))
 
 @app.route('/reset')
 def reset():

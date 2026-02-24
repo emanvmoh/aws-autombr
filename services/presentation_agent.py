@@ -6,10 +6,16 @@ import json
 import os
 
 class PresentationAgent:
-    def __init__(self):
+    def __init__(self, customer_account_id=None):
+        """
+        Initialize Presentation Agent.
+        
+        Args:
+            customer_account_id: Optional customer AWS account ID for role assumption
+        """
         self.bedrock = BedrockService()
         self.pptx_service = PowerPointService()
-        self.context_gatherer = ContextGatherer()
+        self.context_gatherer = ContextGatherer(customer_account_id=customer_account_id)
     
     def process_presentation(self, pptx_path, customer_name, audience_type, uploaded_files, output_dir):
         print(f"\n=== Processing MBR for {customer_name} ===\n")
@@ -46,12 +52,21 @@ class PresentationAgent:
         removed_slides = [s for s in sorted_slides if s['score'] < 4]
         kept_slides = [s for s in sorted_slides if s['score'] >= 4]
         
+        print(f"  Total slides: {len(slide_scores)}")
+        print(f"  Keeping {len(kept_slides)} slides (score >= 4)")
+        print(f"  Removing {len(removed_slides)} slides (score < 4)")
+        print(f"  Reordering presentation...")
+        
+        # Reorder slides in the presentation
+        prs = self.pptx_service.reorder_slides(prs, kept_slides)
+        print(f"  ✓ Presentation now has {len(prs.slides)} slides in new order")
+        
         # Step 6: Generate talking points
         print("\nStep 6: Generating talking points...")
         talking_points_added = []
-        for item in kept_slides:
+        for idx, item in enumerate(kept_slides):
             slide = item['slide']
-            slide_obj = prs.slides[slide['index']]
+            slide_obj = prs.slides[idx]  # Use new index after reordering
             
             talking_points = self.bedrock.generate_talking_points(
                 f"Title: {slide['title']}\nContent: {' '.join(slide['content'])}",
@@ -101,9 +116,23 @@ class PresentationAgent:
         print(f"Change summary: {summary_path}")
         print(f"Questions: {questions_path}")
         
+        # Track data sources for web display
+        aws_service = self.context_gatherer.aws_service
+        data_sources = {
+            'customer_account_used': aws_service.using_customer_account if hasattr(aws_service, 'using_customer_account') else False,
+            'customer_account_id': aws_service.customer_account_id if hasattr(aws_service, 'customer_account_id') else None,
+            'cost_data_real': context['aws_data'].get('costs', {}).get('source') == 'customer_account',
+            'total_cost': context['aws_data'].get('costs', {}).get('total_cost', 0),
+            'health_data_real': False,  # Would be True if Premium Support
+            'support_data_real': False,  # Would be True if Premium Support
+            'ai_used': True,  # Bedrock was used
+            'error_message': 'Role assumption failed - using mock data' if not (aws_service.using_customer_account if hasattr(aws_service, 'using_customer_account') else False) else None
+        }
+        
         return {
             'presentation': output_pptx,
             'summary': summary_path,
             'questions': questions_path,
-            'changes': changes
+            'changes': changes,
+            'data_sources': data_sources
         }

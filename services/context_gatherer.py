@@ -1,9 +1,16 @@
 from services.aws_data_service import AWSDataService
 from services.outlook_service import OutlookService
+from services.pdf_extractor import PDFExtractor
 
 class ContextGatherer:
-    def __init__(self):
-        self.aws_service = AWSDataService()
+    def __init__(self, customer_account_id=None):
+        """
+        Initialize Context Gatherer.
+        
+        Args:
+            customer_account_id: Optional customer AWS account ID for role assumption
+        """
+        self.aws_service = AWSDataService(customer_account_id=customer_account_id)
         self.outlook_service = OutlookService()
     
     def gather_all_context(self, customer_name, uploaded_files):
@@ -41,6 +48,13 @@ class ContextGatherer:
                 if filepath.endswith('.txt'):
                     with open(filepath, 'r', encoding='utf-8') as f:
                         notes[file_type] = f.read()
+                elif filepath.endswith('.pdf'):
+                    # Extract text from PDF
+                    extracted_text = PDFExtractor.extract_text(filepath)
+                    if extracted_text:
+                        notes[file_type] = extracted_text
+                    else:
+                        notes[file_type] = "[PDF extraction failed or empty]"
                 else:
                     notes[file_type] = "[File type not yet supported for extraction]"
             except Exception as e:

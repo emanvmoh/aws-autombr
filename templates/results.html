@@ -22,6 +22,98 @@
         <p>The presentation has been tailored with customer-specific context, talking points, and strategic questions.</p>
     </div>
     
+    {% if data_sources %}
+    <h2>📊 Data Sources Used</h2>
+    <div class="content-box">
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr style="border-bottom: 2px solid #ddd;">
+                <th style="text-align: left; padding: 10px;">Data Source</th>
+                <th style="text-align: left; padding: 10px;">Status</th>
+                <th style="text-align: left; padding: 10px;">Details</th>
+            </tr>
+            <tr style="border-bottom: 1px solid #eee;">
+                <td style="padding: 10px;">Customer Account</td>
+                <td style="padding: 10px;">
+                    {% if data_sources.customer_account_used %}
+                        <span style="color: #28a745;">✅ Connected</span>
+                    {% else %}
+                        <span style="color: #dc3545;">❌ Failed</span>
+                    {% endif %}
+                </td>
+                <td style="padding: 10px; font-size: 0.9em;">
+                    {% if data_sources.customer_account_used %}
+                        Account: {{ data_sources.customer_account_id }}
+                    {% else %}
+                        {{ data_sources.error_message }}
+                    {% endif %}
+                </td>
+            </tr>
+            <tr style="border-bottom: 1px solid #eee;">
+                <td style="padding: 10px;">Cost Explorer</td>
+                <td style="padding: 10px;">
+                    {% if data_sources.cost_data_real %}
+                        <span style="color: #28a745;">✅ Real Data</span>
+                    {% else %}
+                        <span style="color: #ffc107;">⚠️ Mock Data</span>
+                    {% endif %}
+                </td>
+                <td style="padding: 10px; font-size: 0.9em;">
+                    {% if data_sources.cost_data_real %}
+                        Total: ${{ data_sources.total_cost }}
+                    {% else %}
+                        Using sample data
+                    {% endif %}
+                </td>
+            </tr>
+            <tr style="border-bottom: 1px solid #eee;">
+                <td style="padding: 10px;">Health API</td>
+                <td style="padding: 10px;">
+                    {% if data_sources.health_data_real %}
+                        <span style="color: #28a745;">✅ Real Data</span>
+                    {% else %}
+                        <span style="color: #ffc107;">⚠️ Mock Data</span>
+                    {% endif %}
+                </td>
+                <td style="padding: 10px; font-size: 0.9em;">
+                    {% if not data_sources.health_data_real %}
+                        Requires Premium Support
+                    {% endif %}
+                </td>
+            </tr>
+            <tr style="border-bottom: 1px solid #eee;">
+                <td style="padding: 10px;">Support API</td>
+                <td style="padding: 10px;">
+                    {% if data_sources.support_data_real %}
+                        <span style="color: #28a745;">✅ Real Data</span>
+                    {% else %}
+                        <span style="color: #ffc107;">⚠️ Mock Data</span>
+                    {% endif %}
+                </td>
+                <td style="padding: 10px; font-size: 0.9em;">
+                    {% if not data_sources.support_data_real %}
+                        Requires Premium Support
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 10px;">Bedrock AI</td>
+                <td style="padding: 10px;">
+                    {% if data_sources.ai_used %}
+                        <span style="color: #28a745;">✅ Active</span>
+                    {% else %}
+                        <span style="color: #ffc107;">⚠️ Mock</span>
+                    {% endif %}
+                </td>
+                <td style="padding: 10px; font-size: 0.9em;">
+                    {% if data_sources.ai_used %}
+                        Model: Claude 3 Haiku
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
+    </div>
+    {% endif %}
+    
     <h2>Downloads</h2>
     <a href="/download/{{ presentation_file }}" class="btn">📥 Download Presentation</a>
     
@@ -35,6 +127,9 @@
         <pre>{{ questions }}</pre>
     </div>
     
-    <a href="/reset"><button class="secondary">← Start New MBR</button></a>
+    <div style="margin-top: 30px;">
+        <a href="/reset"><button class="secondary">← Start New MBR</button></a>
+        <a href="/cleanup"><button class="secondary">🗑️ Cleanup & Start New</button></a>
+    </div>
 </body>
 </html>

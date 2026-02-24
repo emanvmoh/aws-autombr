@@ -18,10 +18,13 @@
     
     <div class="info-box">
         <h3>Customer: {{ customer_name }}</h3>
+        <p><strong>AWS Account ID:</strong> {{ customer_account_id }}</p>
         <p><strong>Audience Type:</strong> {{ audience_type }}</p>
+        <p style="color: #28a745;">✓ Will fetch real customer data from their AWS account</p>
         <p><strong>What will happen next:</strong></p>
         <ul>
-            <li>Gather AWS cost data, health events, and support cases</li>
+            <li>Assume IAM role in customer account {{ customer_account_id }}</li>
+            <li>Gather customer's AWS cost data, health events, and support cases</li>
             <li>Search your Outlook for customer-related emails</li>
             <li>Analyze customer priorities using Claude</li>
             <li>Assess and reorder slides based on relevance</li>

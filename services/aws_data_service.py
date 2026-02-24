@@ -1,22 +1,62 @@
 import boto3
 from datetime import datetime, timedelta
 from config import Config
+from services.role_assumer import AWSRoleAssumer
 
 class AWSDataService:
-    def __init__(self):
+    def __init__(self, customer_account_id=None, role_name="TAMAccessRole"):
+        """
+        Initialize AWS Data Service.
+        
+        Args:
+            customer_account_id: Optional customer AWS account ID to assume role
+            role_name: IAM role name to assume in customer account
+        """
+        self.customer_account_id = customer_account_id
+        self.using_customer_account = False
+        
         try:
-            self.ce_client = boto3.client('ce', region_name=Config.AWS_REGION)
-            self.health_client = boto3.client('health', region_name='us-east-1')
-            self.support_client = boto3.client('support', region_name='us-east-1')
+            # If customer account provided, assume role
+            if customer_account_id:
+                print(f"\n🔐 Attempting to assume role in customer account: {customer_account_id}")
+                print(f"   Role: {role_name}")
+                
+                session = AWSRoleAssumer.get_customer_boto3_session(
+                    customer_account_id, 
+                    role_name
+                )
+                if session:
+                    self.ce_client = session.client('ce', region_name=Config.AWS_REGION)
+                    self.health_client = session.client('health', region_name='us-east-1')
+                    self.support_client = session.client('support', region_name='us-east-1')
+                    self.using_customer_account = True
+                    print(f"✅ SUCCESS! Using customer account {customer_account_id}")
+                    print(f"   All AWS API calls will use customer's data\n")
+                else:
+                    raise Exception(f"Failed to assume role in account {customer_account_id}")
+            else:
+                # Use default credentials
+                print("\n⚠️  No customer account ID provided - using your credentials")
+                self.ce_client = boto3.client('ce', region_name=Config.AWS_REGION)
+                self.health_client = boto3.client('health', region_name='us-east-1')
+                self.support_client = boto3.client('support', region_name='us-east-1')
+                print("   Using your account data (not customer's)\n")
+            
             self.aws_available = True
         except Exception as e:
-            print(f"AWS clients initialization failed: {e}. Using mock data.")
+            print(f"❌ AWS clients initialization failed: {e}")
+            print("   Falling back to mock data\n")
             self.aws_available = False
+            self.using_customer_account = False
     
     def get_cost_data(self, account_id=None):
         if not self.aws_available:
+            print("   ❌ Using mock cost data (AWS unavailable)")
             return self._mock_cost_data()
         try:
+            account_info = f"customer account {self.customer_account_id}" if self.using_customer_account else "your account"
+            print(f"   📊 Fetching Cost Explorer data from {account_info}...")
+            
             end_date = datetime.now().date()
             start_date = end_date - timedelta(days=90)
             response = self.ce_client.get_cost_and_usage(
@@ -32,13 +72,18 @@ class AWSDataService:
                     cost = float(group['Metrics']['UnblendedCost']['Amount'])
                     services[service] = services.get(service, 0) + cost
             top_services = sorted(services.items(), key=lambda x: x[1], reverse=True)[:10]
+            
+            total_cost = sum(services.values())
+            print(f"   ✅ Retrieved real cost data: ${total_cost:,.2f} total spend")
             return {
                 'top_services': [{'service': s[0], 'cost': round(s[1], 2)} for s in top_services],
                 'total_cost': round(sum(services.values()), 2),
-                'period': f"{start_date} to {end_date}"
+                'period': f"{start_date} to {end_date}",
+                'source': 'customer_account' if self.using_customer_account else 'your_account'
             }
         except Exception as e:
-            print(f"Cost Explorer error: {e}")
+            print(f"   ❌ Cost Explorer error: {e}")
+            print(f"   ⚠️  Falling back to mock data")
             return self._mock_cost_data()
     
     def get_health_events(self):

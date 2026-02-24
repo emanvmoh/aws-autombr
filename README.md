@@ -113,20 +113,57 @@ mbr-automation-agent/
 ## Current Limitations
 
 - **Mock Data**: If AWS APIs fail or Outlook isn't configured, mock data is used
-- **Slide Reordering**: Currently preserves original order (reordering logic can be enhanced)
-- **PDF Extraction**: Not yet implemented for uploaded notes
 - **Command Center**: No direct API - uses Support API instead
 
 ## TODO for Production
 
+- [x] ~~Add PDF text extraction for uploaded notes~~ ✅ **COMPLETED**
+- [x] ~~Add customer-specific IAM role assumption~~ ✅ **COMPLETED**
+- [x] ~~Implement data cleanup after processing~~ ✅ **COMPLETED**
+- [x] ~~Enhance slide reordering (currently keeps original order)~~ ✅ **COMPLETED**
 - [ ] Implement real Outlook OAuth flow
-- [ ] Add PDF text extraction for uploaded notes
-- [ ] Enhance slide reordering (currently keeps original order)
-- [ ] Add customer-specific IAM role assumption
-- [ ] Implement data cleanup after processing
 - [ ] Add authentication for web interface
 - [ ] Deploy to ECS/Lambda for team access
 - [ ] Add audit logging
+
+## Recent Updates
+
+### Priority 1 Features (Completed)
+
+**PDF Extraction** ✅
+- Added `pdfplumber` library for PDF text extraction
+- Uploaded PDF notes are now automatically extracted and used for context
+- Supports both `.txt` and `.pdf` file formats
+
+**Customer IAM Role Assumption** ✅
+- Added `AWSRoleAssumer` service for assuming roles in customer accounts
+- `AWSDataService` now accepts `customer_account_id` parameter
+- **Customer account ID is now REQUIRED** for all MBR processing
+- Fetches real customer Cost Explorer, Health, and Support data
+- Usage: TAM must provide customer's 12-digit AWS account ID
+
+**Data Cleanup** ✅
+- Added `FileCleanup` service for automatic file management
+- Old files (>24 hours) automatically deleted on app startup
+- Manual cleanup button added to results page
+- Session-specific file cleanup available via `/cleanup` route
+
+**Slide Reordering** ✅
+- Implemented intelligent slide reordering based on AI relevance scores
+- Slides are now sorted by relevance (highest score first)
+- Low-relevance slides (score < 4) are removed
+- Presentation flow optimized for customer priorities
+- Uses XML manipulation for reliable slide reordering
+
+### Important: Customer Account ID Required
+
+The tool now **requires** a customer AWS account ID to ensure:
+- Real customer data is used (not TAM's test account)
+- Accurate cost analysis from customer's Cost Explorer
+- Relevant health events and support cases
+- Meaningful AI-generated insights
+
+**Customer must create IAM role:** `TAMAccessRole` with appropriate permissions
 
 ## Security Notes
 

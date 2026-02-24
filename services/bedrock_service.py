@@ -76,7 +76,7 @@ MBR Focus Areas:
                     return """• Reference open support case #12345 regarding RDS performance issues
 • Discuss current instance types and whether Aurora migration makes sense
 • Review backup retention and storage costs - optimization opportunities
-• Ask: "What's your RTO/RPO requirements? Are you considering Multi-AZ or read replicas?""""
+• Ask: "What's your RTO/RPO requirements? Are you considering Multi-AZ or read replicas?\""""
                 elif "s3" in prompt_lower:
                     return """• S3 costs growing steadily - review storage classes and lifecycle policies
 • Identify data that could move to Glacier or Intelligent-Tiering
@@ -92,7 +92,7 @@ MBR Focus Areas:
                 return """• Operational metrics show usage patterns - correlate with cost trends
 • Identify opportunities for automation and efficiency improvements
 • Discuss monitoring and alerting setup for proactive issue detection
-• Ask: "Are you getting the visibility you need into resource utilization?""""
+• Ask: "Are you getting the visibility you need into resource utilization?\""""
             
             elif "reservation" in prompt_lower or "savings plan" in prompt_lower:
                 return """• Current RI/SP coverage is X% - opportunity to increase and save Y%
@@ -110,19 +110,19 @@ MBR Focus Areas:
                 return """• Review open case #12345 (RDS performance) - provide update and next steps
 • Case volume trending up/down - discuss if customer needs additional training
 • Highlight proactive engagement opportunities to prevent future issues
-• Ask: "Are you satisfied with response times and resolution quality?""""
+• Ask: "Are you satisfied with response times and resolution quality?\""""
             
             elif "security" in prompt_lower or "compliance" in prompt_lower:
                 return """• Review security posture against customer's compliance requirements
 • Discuss IAM best practices and any findings from Security Hub
 • Highlight encryption status for data at rest and in transit
-• Ask: "Any upcoming audits or compliance certifications we should prepare for?""""
+• Ask: "Any upcoming audits or compliance certifications we should prepare for?\""""
             
             elif "innovation" in prompt_lower or "roadmap" in prompt_lower:
                 return """• Connect AWS innovation to customer's stated priorities (containers, cost optimization)
 • Discuss relevant new services: ECS/EKS for containers, Compute Optimizer for rightsizing
 • Propose architecture review or Well-Architected Framework assessment
-• Ask: "What business initiatives are driving your technical roadmap for next quarter?""""
+• Ask: "What business initiatives are driving your technical roadmap for next quarter?\""""
             
             else:
                 return """• Connect this slide's content to customer's top priorities: cost optimization and container migration

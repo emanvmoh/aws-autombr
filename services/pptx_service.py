@@ -19,6 +19,36 @@ class PowerPointService:
             slides_data.append(slide_data)
         return slides_data
     
+    def reorder_slides(self, prs, kept_slides):
+        """
+        Reorder slides by moving them within the presentation.
+        
+        Args:
+            prs: Original presentation
+            kept_slides: List of slide items with 'slide' dict and 'score', sorted by relevance
+            
+        Returns:
+            Modified presentation with reordered slides
+        """
+        # Get the XML element that contains all slides
+        sldIdLst = prs.slides._sldIdLst
+        
+        # Create mapping of original indices to slide IDs
+        slide_ids = {i: sldIdLst[i] for i in range(len(prs.slides))}
+        
+        # Build new order: kept slides sorted by score, then removed slides at end
+        new_order_indices = [item['slide']['index'] for item in kept_slides]
+        
+        # Reorder by removing all and re-adding in new order
+        for slide_id in list(sldIdLst):
+            sldIdLst.remove(slide_id)
+        
+        for idx in new_order_indices:
+            if idx in slide_ids:
+                sldIdLst.append(slide_ids[idx])
+        
+        return prs
+    
     def add_talking_points(self, slide, talking_points):
         notes_slide = slide.notes_slide
         text_frame = notes_slide.notes_text_frame
