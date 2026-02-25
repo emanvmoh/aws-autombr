@@ -3,133 +3,288 @@
 <head>
     <title>Results - MBR Automation</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 1000px; margin: 50px auto; padding: 20px; }
-        h1 { color: #232f3e; }
-        .success { background-color: #d4edda; padding: 20px; border-radius: 8px; border-left: 4px solid #28a745; margin: 20px 0; }
-        .content-box { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; }
-        pre { white-space: pre-wrap; word-wrap: break-word; }
-        button, .btn { background-color: #ff9900; color: white; padding: 12px 30px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; text-decoration: none; display: inline-block; margin: 5px; }
-        button:hover, .btn:hover { background-color: #ec7211; }
-        .secondary { background-color: #6c757d; }
-        .secondary:hover { background-color: #5a6268; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Amazon Ember', 'Helvetica Neue', Roboto, Arial, sans-serif; 
+            background-color: #f2f3f3;
+            color: #16191f;
+        }
+        .header {
+            background-color: #232f3e;
+            padding: 20px 40px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header h1 {
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: 400;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        .card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 32px;
+            box-shadow: 0 1px 1px rgba(0,28,36,0.3), 1px 1px 1px rgba(0,28,36,0.15), -1px 1px 1px rgba(0,28,36,0.15);
+            margin-bottom: 20px;
+        }
+        .success-banner {
+            background-color: #1d8102;
+            color: #ffffff;
+            padding: 20px 32px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .success-banner h2 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .success-banner p {
+            font-size: 14px;
+            opacity: 0.95;
+        }
+        .card h2 {
+            color: #16191f;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e9ebed;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            text-align: left;
+            padding: 12px;
+            background-color: #fafafa;
+            font-weight: 700;
+            font-size: 14px;
+            color: #16191f;
+            border-bottom: 2px solid #e9ebed;
+        }
+        td {
+            padding: 12px;
+            font-size: 14px;
+            border-bottom: 1px solid #e9ebed;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        .status-success { color: #1d8102; font-weight: 700; }
+        .status-warning { color: #ff9900; font-weight: 700; }
+        .status-error { color: #d13212; font-weight: 700; }
+        .content-box {
+            background-color: #fafafa;
+            border: 1px solid #e9ebed;
+            border-radius: 4px;
+            padding: 20px;
+            margin-top: 12px;
+        }
+        .content-text {
+            font-family: 'Amazon Ember', 'Helvetica Neue', Roboto, Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.8;
+            color: #16191f;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .content-text h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #16191f;
+            margin-top: 20px;
+            margin-bottom: 12px;
+        }
+        .content-text h3:first-child {
+            margin-top: 0;
+        }
+        .content-text ul, .content-text ol {
+            margin-left: 20px;
+            margin-bottom: 12px;
+        }
+        .content-text li {
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+        .content-text p {
+            margin-bottom: 12px;
+        }
+        .content-text strong {
+            font-weight: 700;
+            color: #16191f;
+        }
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            flex-wrap: wrap;
+        }
+        button, .btn { 
+            padding: 12px 24px; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 14px;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.15s ease-in-out;
+        }
+        .btn-primary {
+            background-color: #ec7211; 
+            color: white;
+        }
+        .btn-primary:hover { 
+            background-color: #eb5f07; 
+        }
+        .btn-secondary {
+            background-color: #ffffff;
+            color: #16191f;
+            border: 1px solid #aab7b8;
+        }
+        .btn-secondary:hover {
+            background-color: #fafafa;
+        }
     </style>
 </head>
 <body>
-    <h1>✓ Processing Complete</h1>
-    
-    <div class="success">
-        <h3>Your MBR presentation for {{ customer_name }} is ready!</h3>
-        <p>The presentation has been tailored with customer-specific context, talking points, and strategic questions.</p>
+    <div class="header">
+        <h1>🤖 MBR Automation Agent</h1>
     </div>
     
-    {% if data_sources %}
-    <h2>📊 Data Sources Used</h2>
-    <div class="content-box">
-        <table style="width: 100%; border-collapse: collapse;">
-            <tr style="border-bottom: 2px solid #ddd;">
-                <th style="text-align: left; padding: 10px;">Data Source</th>
-                <th style="text-align: left; padding: 10px;">Status</th>
-                <th style="text-align: left; padding: 10px;">Details</th>
-            </tr>
-            <tr style="border-bottom: 1px solid #eee;">
-                <td style="padding: 10px;">Customer Account</td>
-                <td style="padding: 10px;">
-                    {% if data_sources.customer_account_used %}
-                        <span style="color: #28a745;">✅ Connected</span>
-                    {% else %}
-                        <span style="color: #dc3545;">❌ Failed</span>
-                    {% endif %}
-                </td>
-                <td style="padding: 10px; font-size: 0.9em;">
-                    {% if data_sources.customer_account_used %}
-                        Account: {{ data_sources.customer_account_id }}
-                    {% else %}
-                        {{ data_sources.error_message }}
-                    {% endif %}
-                </td>
-            </tr>
-            <tr style="border-bottom: 1px solid #eee;">
-                <td style="padding: 10px;">Cost Explorer</td>
-                <td style="padding: 10px;">
-                    {% if data_sources.cost_data_real %}
-                        <span style="color: #28a745;">✅ Real Data</span>
-                    {% else %}
-                        <span style="color: #ffc107;">⚠️ Mock Data</span>
-                    {% endif %}
-                </td>
-                <td style="padding: 10px; font-size: 0.9em;">
-                    {% if data_sources.cost_data_real %}
-                        Total: ${{ data_sources.total_cost }}
-                    {% else %}
-                        Using sample data
-                    {% endif %}
-                </td>
-            </tr>
-            <tr style="border-bottom: 1px solid #eee;">
-                <td style="padding: 10px;">Health API</td>
-                <td style="padding: 10px;">
-                    {% if data_sources.health_data_real %}
-                        <span style="color: #28a745;">✅ Real Data</span>
-                    {% else %}
-                        <span style="color: #ffc107;">⚠️ Mock Data</span>
-                    {% endif %}
-                </td>
-                <td style="padding: 10px; font-size: 0.9em;">
-                    {% if not data_sources.health_data_real %}
-                        Requires Premium Support
-                    {% endif %}
-                </td>
-            </tr>
-            <tr style="border-bottom: 1px solid #eee;">
-                <td style="padding: 10px;">Support API</td>
-                <td style="padding: 10px;">
-                    {% if data_sources.support_data_real %}
-                        <span style="color: #28a745;">✅ Real Data</span>
-                    {% else %}
-                        <span style="color: #ffc107;">⚠️ Mock Data</span>
-                    {% endif %}
-                </td>
-                <td style="padding: 10px; font-size: 0.9em;">
-                    {% if not data_sources.support_data_real %}
-                        Requires Premium Support
-                    {% endif %}
-                </td>
-            </tr>
-            <tr>
-                <td style="padding: 10px;">Bedrock AI</td>
-                <td style="padding: 10px;">
-                    {% if data_sources.ai_used %}
-                        <span style="color: #28a745;">✅ Active</span>
-                    {% else %}
-                        <span style="color: #ffc107;">⚠️ Mock</span>
-                    {% endif %}
-                </td>
-                <td style="padding: 10px; font-size: 0.9em;">
-                    {% if data_sources.ai_used %}
-                        Model: Claude 3 Haiku
-                    {% endif %}
-                </td>
-            </tr>
-        </table>
-    </div>
-    {% endif %}
-    
-    <h2>Downloads</h2>
-    <a href="/download/{{ presentation_file }}" class="btn">📥 Download Presentation</a>
-    
-    <h2>Change Summary</h2>
-    <div class="content-box">
-        <pre>{{ summary }}</pre>
-    </div>
-    
-    <h2>Strategic Questions</h2>
-    <div class="content-box">
-        <pre>{{ questions }}</pre>
-    </div>
-    
-    <div style="margin-top: 30px;">
-        <a href="/reset"><button class="secondary">← Start New MBR</button></a>
-        <a href="/cleanup"><button class="secondary">🗑️ Cleanup & Start New</button></a>
+    <div class="container">
+        <div class="success-banner">
+            <h2>✓ Processing Complete</h2>
+            <p>Your MBR presentation for {{ customer_name }} is ready! The presentation has been tailored with customer-specific context, talking points, and strategic questions.</p>
+        </div>
+        
+        {% if data_sources %}
+        <div class="card">
+            <h2>📊 Data Sources Used</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Data Source</th>
+                        <th>Status</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Customer Account</strong></td>
+                        <td>
+                            {% if data_sources.customer_account_used %}
+                                <span class="status-success">✅ Connected</span>
+                            {% else %}
+                                <span class="status-error">❌ Failed</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if data_sources.customer_account_used %}
+                                Account: {{ data_sources.customer_account_id }}
+                            {% else %}
+                                {{ data_sources.error_message }}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Cost Explorer</strong></td>
+                        <td>
+                            {% if data_sources.cost_data_real %}
+                                <span class="status-success">✅ Real Data</span>
+                            {% else %}
+                                <span class="status-warning">⚠️ Mock Data</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if data_sources.cost_data_real %}
+                                Total: ${{ data_sources.total_cost }}
+                            {% else %}
+                                Using sample data
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Health API</strong></td>
+                        <td>
+                            {% if data_sources.health_data_real %}
+                                <span class="status-success">✅ Real Data</span>
+                            {% else %}
+                                <span class="status-warning">⚠️ Mock Data</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if not data_sources.health_data_real %}
+                                Requires Business+ or Enterprise Support
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Support API</strong></td>
+                        <td>
+                            {% if data_sources.support_data_real %}
+                                <span class="status-success">✅ Real Data</span>
+                            {% else %}
+                                <span class="status-warning">⚠️ Mock Data</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if not data_sources.support_data_real %}
+                                Requires Business+ or Enterprise Support
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Bedrock AI</strong></td>
+                        <td>
+                            {% if data_sources.ai_used %}
+                                <span class="status-success">✅ Active</span>
+                            {% else %}
+                                <span class="status-warning">⚠️ Mock</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if data_sources.ai_used %}
+                                Model: Claude 3 Haiku
+                            {% endif %}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        
+        <div class="card">
+            <h2>📥 Downloads</h2>
+            <div class="button-group">
+                <a href="/download/{{ presentation_file }}" class="btn btn-primary">Download Presentation</a>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>📝 Change Summary</h2>
+            <div class="content-box">
+                <div class="content-text">{{ summary }}</div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>💡 Strategic Questions</h2>
+            <div class="content-box">
+                <div class="content-text">{{ questions }}</div>
+            </div>
+        </div>
+        
+        <div class="button-group">
+            <a href="/reset" class="btn btn-secondary">← Start New MBR</a>
+            <a href="/cleanup" class="btn btn-secondary">🗑️ Cleanup & Start New</a>
+        </div>
     </div>
 </body>
 </html>

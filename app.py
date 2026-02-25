@@ -38,24 +38,21 @@ def upload_files():
     
     customer_name = request.form.get('customer_name', '').strip()
     audience_type = request.form.get('audience_type', 'technical')
-    customer_account_id = request.form.get('customer_account_id', '').strip()
+    customer_account_id = request.form.get('customer_account_id', '').strip() or None
     
     if not customer_name:
         flash('Customer name is required')
         return redirect(url_for('index'))
     
-    if not customer_account_id:
-        flash('Customer AWS Account ID is required')
-        return redirect(url_for('index'))
-    
-    # Validate customer account ID
-    if not customer_account_id.isdigit():
-        flash('Customer AWS Account ID must be 12 digits')
-        return redirect(url_for('index'))
-    
-    if len(customer_account_id) != 12:
-        flash('Customer AWS Account ID must be exactly 12 digits')
-        return redirect(url_for('index'))
+    # Validate customer account ID if provided
+    if customer_account_id:
+        if not customer_account_id.isdigit():
+            flash('Customer AWS Account ID must be 12 digits')
+            return redirect(url_for('index'))
+        
+        if len(customer_account_id) != 12:
+            flash('Customer AWS Account ID must be exactly 12 digits')
+            return redirect(url_for('index'))
     
     # Save uploaded files
     pptx_filename = secure_filename(presentation.filename)

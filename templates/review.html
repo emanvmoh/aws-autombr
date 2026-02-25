@@ -3,40 +3,167 @@
 <head>
     <title>Review - MBR Automation</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
-        h1 { color: #232f3e; }
-        .info-box { background-color: #f0f8ff; padding: 20px; border-radius: 8px; margin: 20px 0; }
-        .info-box p { margin: 10px 0; }
-        button { background-color: #ff9900; color: white; padding: 12px 30px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-right: 10px; }
-        button:hover { background-color: #ec7211; }
-        .secondary { background-color: #6c757d; }
-        .secondary:hover { background-color: #5a6268; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Amazon Ember', 'Helvetica Neue', Roboto, Arial, sans-serif; 
+            background-color: #f2f3f3;
+            color: #16191f;
+        }
+        .header {
+            background-color: #232f3e;
+            padding: 20px 40px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header h1 {
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: 400;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        .card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 40px;
+            box-shadow: 0 1px 1px rgba(0,28,36,0.3), 1px 1px 1px rgba(0,28,36,0.15), -1px 1px 1px rgba(0,28,36,0.15);
+            margin-bottom: 20px;
+        }
+        .card h2 {
+            color: #16191f;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        .info-row {
+            display: flex;
+            padding: 12px 0;
+            border-bottom: 1px solid #e9ebed;
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            font-weight: 700;
+            color: #5f6b7a;
+            width: 200px;
+            font-size: 14px;
+        }
+        .info-value {
+            color: #16191f;
+            flex: 1;
+            font-size: 14px;
+        }
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        button, .btn { 
+            padding: 12px 24px; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 14px;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.15s ease-in-out;
+        }
+        .btn-primary {
+            background-color: #ec7211; 
+            color: white;
+        }
+        .btn-primary:hover { 
+            background-color: #eb5f07; 
+        }
+        .btn-secondary {
+            background-color: #ffffff;
+            color: #16191f;
+            border: 1px solid #aab7b8;
+        }
+        .btn-secondary:hover {
+            background-color: #fafafa;
+        }
+        .alert {
+            background-color: #fff8e1;
+            border-left: 4px solid #ff9900;
+            padding: 16px;
+            margin-bottom: 24px;
+            border-radius: 4px;
+        }
+        .alert p {
+            color: #16191f;
+            margin: 0;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
-    <h1>Review Information</h1>
-    
-    <div class="info-box">
-        <h3>Customer: {{ customer_name }}</h3>
-        <p><strong>AWS Account ID:</strong> {{ customer_account_id }}</p>
-        <p><strong>Audience Type:</strong> {{ audience_type }}</p>
-        <p style="color: #28a745;">✓ Will fetch real customer data from their AWS account</p>
-        <p><strong>What will happen next:</strong></p>
-        <ul>
-            <li>Assume IAM role in customer account {{ customer_account_id }}</li>
-            <li>Gather customer's AWS cost data, health events, and support cases</li>
-            <li>Search your Outlook for customer-related emails</li>
-            <li>Analyze customer priorities using Claude</li>
-            <li>Assess and reorder slides based on relevance</li>
-            <li>Generate contextual talking points for each slide</li>
-            <li>Create strategic questions for the MBR</li>
-        </ul>
-        <p><em>This process typically takes 2-3 minutes.</em></p>
+    <div class="header">
+        <h1>🤖 MBR Automation Agent</h1>
     </div>
     
-    <form action="/process" method="post">
-        <button type="submit">✓ Confirm and Process</button>
-        <a href="/reset"><button type="button" class="secondary">← Go Back</button></a>
-    </form>
+    <div class="container">
+        <div class="card">
+            <h2>Review Information</h2>
+            <p style="color: #5f6b7a; margin-bottom: 24px;">Please review the information below before processing.</p>
+            
+            <div class="info-row">
+                <div class="info-label">Customer Name</div>
+                <div class="info-value">{{ customer_name }}</div>
+            </div>
+            
+            <div class="info-row">
+                <div class="info-label">AWS Account ID</div>
+                <div class="info-value">
+                    {% if customer_account_id %}
+                        {{ customer_account_id }}
+                    {% else %}
+                        <span style="color: #5f6b7a;">Not provided (will use mock data)</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="info-row">
+                <div class="info-label">Audience Type</div>
+                <div class="info-value">{{ audience_type|capitalize }}</div>
+            </div>
+            
+            <div class="info-row">
+                <div class="info-label">Presentation</div>
+                <div class="info-value">{{ presentation_filename }}</div>
+            </div>
+            
+            {% if previous_mbr_filename %}
+            <div class="info-row">
+                <div class="info-label">Previous MBR Notes</div>
+                <div class="info-value">{{ previous_mbr_filename }}</div>
+            </div>
+            {% endif %}
+            
+            {% if sa_notes_filename %}
+            <div class="info-row">
+                <div class="info-label">SA/CSM Notes</div>
+                <div class="info-value">{{ sa_notes_filename }}</div>
+            </div>
+            {% endif %}
+            
+            {% if not customer_account_id %}
+            <div class="alert" style="margin-top: 24px;">
+                <p><strong>Note:</strong> No AWS Account ID provided. The tool will use mock data for AWS Cost Explorer, Health API, and Support API.</p>
+            </div>
+            {% endif %}
+            
+            <div class="button-group">
+                <form action="/process" method="post" style="display: inline;">
+                    <button type="submit" class="btn-primary">Confirm & Process</button>
+                </form>
+                <a href="/" class="btn btn-secondary">← Back</a>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
