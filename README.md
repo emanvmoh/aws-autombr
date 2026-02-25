@@ -10,6 +10,10 @@ AI-powered automation tool for AWS Technical Account Managers to prepare Monthly
 - **Talking Points**: Generates contextual talking points for each slide
 - **Strategic Questions**: Creates high-value questions to drive MBR conversations
 - **Change Tracking**: Provides detailed summary of all modifications
+- **PDF Support**: Upload notes in PDF or text format - automatic text extraction
+- **Customer Data Access**: Assumes IAM role in customer account for real AWS data (optional)
+- **Automatic Cleanup**: Files older than 24 hours automatically deleted on startup
+- **AWS-Styled UI**: Professional interface matching AWS design system
 
 ## Setup
 
@@ -48,10 +52,24 @@ FLASK_SECRET_KEY=your_random_secret_key
 Ensure your AWS credentials have access to:
 - Amazon Bedrock (Claude model)
 - AWS Cost Explorer
-- AWS Health API
-- AWS Support API
+- AWS Health API (requires Business+ or Enterprise Support)
+- AWS Support API (requires Business+ or Enterprise Support)
 
-### 4. Outlook OAuth Setup (Optional)
+### 4. Customer Account Access (Optional)
+
+To fetch real customer data, the customer must create an IAM role in their account:
+
+**Role Name:** `TAMAccessRole`
+
+**Trust Policy:** Allow your TAM account to assume the role
+
+**Permissions:** Cost Explorer, Health API, Support API access
+
+See `CUSTOMER_ACCOUNT_GUIDE.md` for detailed setup instructions.
+
+If customer account ID is not provided, the tool will use mock data.
+
+### 5. Outlook OAuth Setup (Optional)
 
 To enable real email integration:
 
@@ -75,22 +93,25 @@ Access at: http://localhost:5000
 ### Workflow
 
 1. **Upload Files**
-   - MBR presentation (required)
-   - Previous MBR notes (optional)
-   - SA/CSM notes (optional)
+   - MBR presentation (required - .pptx)
+   - Previous MBR notes (optional - .txt or .pdf)
+   - SA/CSM notes (optional - .txt or .pdf)
 
 2. **Provide Context**
-   - Customer name
+   - Customer name (required)
+   - Customer AWS Account ID (optional - for real data access)
    - Audience type (technical/business/mixed)
 
 3. **Review & Process**
    - Confirm information
    - Agent gathers context and processes presentation
+   - Processing time: ~10-12 minutes for typical presentation
 
 4. **Download Results**
    - Modified PowerPoint with talking points
    - Change summary document
    - Strategic questions document
+   - View data sources used (real vs mock data)
 
 ## Architecture
 
@@ -104,8 +125,11 @@ mbr-automation-agent/
 │   ├── outlook_service.py      # Email integration
 │   ├── pptx_service.py         # PowerPoint manipulation
 │   ├── context_gatherer.py     # Context orchestration
-│   └── presentation_agent.py   # Main agent logic
-├── templates/                  # HTML templates
+│   ├── presentation_agent.py   # Main agent logic
+│   ├── pdf_extractor.py        # PDF text extraction
+│   ├── role_assumer.py         # IAM role assumption
+│   └── file_cleanup.py         # Automatic file cleanup
+├── templates/                  # HTML templates (AWS-styled)
 ├── uploads/                    # Temporary file storage
 └── outputs/                    # Generated presentations
 ```
@@ -114,78 +138,37 @@ mbr-automation-agent/
 
 - **Mock Data**: If AWS APIs fail or Outlook isn't configured, mock data is used
 - **Command Center**: No direct API - uses Support API instead
+- **Processing Time**: ~10-12 minutes for typical presentations (sequential AI processing)
+- **Support APIs**: Health and Support APIs require Business+ or Enterprise Support plan
 
 ## TODO for Production
 
-- [x] ~~Add PDF text extraction for uploaded notes~~ ✅ **COMPLETED**
-- [x] ~~Add customer-specific IAM role assumption~~ ✅ **COMPLETED**
-- [x] ~~Implement data cleanup after processing~~ ✅ **COMPLETED**
-- [x] ~~Enhance slide reordering (currently keeps original order)~~ ✅ **COMPLETED**
 - [ ] Implement real Outlook OAuth flow
 - [ ] Add authentication for web interface
 - [ ] Deploy to ECS/Lambda for team access
 - [ ] Add audit logging
-
-## Recent Updates
-
-### Priority 1 Features (Completed)
-
-**PDF Extraction** ✅
-- Added `pdfplumber` library for PDF text extraction
-- Uploaded PDF notes are now automatically extracted and used for context
-- Supports both `.txt` and `.pdf` file formats
-
-**Customer IAM Role Assumption** ✅
-- Added `AWSRoleAssumer` service for assuming roles in customer accounts
-- `AWSDataService` now accepts `customer_account_id` parameter
-- **Customer account ID is now REQUIRED** for all MBR processing
-- Fetches real customer Cost Explorer, Health, and Support data
-- Usage: TAM must provide customer's 12-digit AWS account ID
-
-**Data Cleanup** ✅
-- Added `FileCleanup` service for automatic file management
-- Old files (>24 hours) automatically deleted on app startup
-- Manual cleanup button added to results page
-- Session-specific file cleanup available via `/cleanup` route
-
-**Slide Reordering** ✅
-- Implemented intelligent slide reordering based on AI relevance scores
-- Slides are now sorted by relevance (highest score first)
-- Low-relevance slides (score < 4) are removed
-- Presentation flow optimized for customer priorities
-- Uses XML manipulation for reliable slide reordering
-
-### Important: Customer Account ID Required
-
-The tool now **requires** a customer AWS account ID to ensure:
-- Real customer data is used (not TAM's test account)
-- Accurate cost analysis from customer's Cost Explorer
-- Relevant health events and support cases
-- Meaningful AI-generated insights
-
-**Customer must create IAM role:** `TAMAccessRole` with appropriate permissions
-
-## Security Notes
-
-- All uploaded files are stored temporarily in `uploads/`
-- Outputs are stored in `outputs/`
-- **Important**: Implement data cleanup in production
-- Use IAM roles instead of long-term credentials
-- Add authentication before deploying publicly
+- [ ] Implement progress indicator for long-running processes
+- [ ] Add performance optimization (parallel processing with proper locking)
 
 ## Troubleshooting
 
 **Bedrock Access Denied**
 - Ensure your AWS credentials have `bedrock:InvokeModel` permission
 - Verify the model ID is correct for your region
+- Check that credentials are not expired (Isengard tokens expire after 12 hours)
 
 **Cost Explorer Errors**
-- Requires Business/Enterprise support plan
+- Requires Business+ or Enterprise support plan
 - Falls back to mock data if unavailable
 
 **Support API Errors**
-- Requires Business/Enterprise support plan
+- Requires Business+ or Enterprise support plan
 - Falls back to mock data if unavailable
+
+**Customer Account Access**
+- Customer must create IAM role `TAMAccessRole` in their account
+- Role must trust your TAM account
+- See `CUSTOMER_ACCOUNT_GUIDE.md` for setup instructions
 
 ## Support
 
